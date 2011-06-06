@@ -28,13 +28,13 @@ std::string get_typename()
 }
 
 #include <iostream>
-#include <vector>
+
+#define PRINT_DECLTYPE( expr )  \
+  ( std::cout << #expr << " : " << get_typename<decltype(expr)>() << std::endl )
 
 int main()
 {
-  std::cout << get_typename<int>() << std::endl;
-  std::cout << get_typename<int const&>() << std::endl;
-  std::cout << get_typename<std::string>() << std::endl;
-  std::cout << get_typename<std::vector<int>>() << std::endl;
-  std::cout << get_typename<type<std::vector<int>>>() << std::endl;
+  int i;
+  PRINT_DECLTYPE( i );
+  PRINT_DECLTYPE((i));
 }
