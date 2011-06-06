@@ -32,9 +32,31 @@ std::string get_typename()
 #define PRINT_DECLTYPE( expr )  \
   ( std::cout << #expr << " : " << get_typename<decltype(expr)>() << std::endl )
 
+void f();
+
 int main()
 {
-  int i;
-  PRINT_DECLTYPE( i );
-  PRINT_DECLTYPE((i));
+  auto x = 0;
+  PRINT_DECLTYPE( x );
+  PRINT_DECLTYPE( (x) );
+  
+  auto const& y = x;
+  PRINT_DECLTYPE( y );
+  PRINT_DECLTYPE( (y) );
+  
+  PRINT_DECLTYPE( f );
+  PRINT_DECLTYPE( (f) );
+  
+  struct X {
+    int z;
+    
+    void foo() const {
+      PRINT_DECLTYPE( z );
+      PRINT_DECLTYPE( (z) );
+      PRINT_DECLTYPE( foo );
+      // PRINT_DECLTYPE( (foo) );
+    }
+    
+  };
+  X().foo();
 }
