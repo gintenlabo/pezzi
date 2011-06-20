@@ -2,22 +2,13 @@
 // C++ インタプリタ欲しいなー。無理だろうけど。
 // このコメントはエンコードを UTF-8 にするために書いてるのです。
 
-#include "demangle.hpp"
+#include <atomic>
+#include <type_traits>
 
-#include <iostream>
-
-template< class T >
-struct type {};
-
-template< class T >
-void print_type()
-{
-  std::cout << pezzi::Demangle( typeid(type<T>) ) << std::endl;
-}
+#define STATIC_ASSERT(...) static_assert( __VA_ARGS__, #__VA_ARGS__ )
 
 int main()
 {
-  // 関数型とか
-  typedef int function_type();
-  print_type<function_type const&>();
+  STATIC_ASSERT( std::is_class<std::atomic_int>::value );
+  STATIC_ASSERT( std::is_base_of<std::atomic_int, std::atomic<int>>::value );
 }
