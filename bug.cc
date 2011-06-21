@@ -1,6 +1,9 @@
-#include <iostream> // any C++ header not including <algorithm>
+template<class T>
+void f() {
+  []( bool b ){ return b; };
+}
 
-#define max( a, b ) bad_macro
-#include <algorithm>
-#include <limits>
-
+int main()
+{
+  f<int>();
+}
