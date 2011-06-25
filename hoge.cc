@@ -2,16 +2,9 @@
 // C++ インタプリタ欲しいなー。無理だろうけど。
 // このコメントはエンコードを UTF-8 にするために書いてるのです。
 
-#include <memory>
-#include <functional>
-
-#define STATIC_ASSERT(...) static_assert( __VA_ARGS__, #__VA_ARGS__ )
-
-#include <boost/noncopyable.hpp>
 #include <iostream>
 
 struct X
-  : private boost::noncopyable
 {
   explicit X( int m_ )
     : member( m_ ) {}
@@ -29,21 +22,21 @@ struct X
   
 };
 
+#include <memory>
+#include <functional>
+#include <utility>
+#include <tuple>
+
 std::shared_ptr<std::function<void()>> make_some_function()
 {
-  struct impl_
-    : X
-  {
-    std::function<void()> f;
-    
-    impl_( int m_ )
-      : X(m_) {}
-    
-  };
+  typedef std::function<void()> function_t;
+  typedef std::pair<X, function_t> pair_t;
   
-  auto  p = std::make_shared<impl_>( 42 );
-  auto& f = p->f;
-  auto& x = static_cast<X&>(*p);
+  auto  p = std::make_shared<pair_t>( std::piecewise_construct,
+    std::make_tuple( 42 ), std::make_tuple()
+  );
+  auto& x = p->first;
+  auto& f = p->second;
   
   f = [&x]{ x.foo(); };
   
