@@ -65,6 +65,16 @@ namespace pezzi
     
   };
   
+  template< class Signature, class F,
+    class FD = typename std::decay<F>::type,
+    class FunctionBody = shared_function_body<Signature, FD>,
+    class Result = std::shared_ptr<FunctionBody>
+  >
+  inline Result make_shared_function_body( F && f )
+  {
+    return std::make_shared<FunctionBody>( std::forward<F>(f) );
+  }
+  
   // 本体
   template< class R, class... Args >
   class shared_function<R (Args...)>
@@ -125,9 +135,7 @@ namespace pezzi
     
     template< class F >
     static pointer_type make_body_( F && f ) {
-      typedef typename std::decay<F>::type FD;
-      typedef shared_function_body<signature, FD> body_type;
-      return std::make_shared<body_type>( std::forward<F>(f) );
+      return make_shared_function_body<signature>( std::forward<F>(f) );
     }
     
   };
