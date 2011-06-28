@@ -5,22 +5,21 @@
 #include <memory>
 #include <mutex>
 
+// 補助関数． 受け取った mutex を adopt_lock する
 template< class Mutex >
-struct unlock
+std::unique_lock<Mutex> adopt_unique_lock( Mutex& m )
 {
-  void operator()( Mutex* m ) const {
-    m->unlock();
-  }
-};
+  return std::unique_lock<Mutex>( m, std::adopt_lock );
+}
 
 // クラスではなく関数にする（型推論しやすいよう）
 template< class... Args,
-  class Result = std::tuple<std::unique_ptr<Args, unlock<Args>>...>
+  class Result = std::tuple<std::unique_lock<Args>...>
 >
 Result make_lock_guard( Args&... args )
 {
   std::lock( args... );
-  return Result( std::addressof(args)... );
+  return Result( adopt_unique_lock(args)... );
 }
 
 
