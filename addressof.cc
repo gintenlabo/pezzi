@@ -1,13 +1,11 @@
 namespace pezzi
 {
-  struct addressof_helper_ {};
-  
   template< class T >
-  T* addressof( T& x )
+  inline T* addressof( T& x )
   {
     return reinterpret_cast<T*>(
-      const_cast<addressof_helper_*>(
-        &reinterpret_cast<addressof_helper_ const volatile &>(x)
+      const_cast<char*>(
+        &reinterpret_cast<char const volatile &>(x)
       )
     );
   }
@@ -22,25 +20,27 @@ struct X
 
 struct Y
 {
-  operator char&() const {
-    static char ch = 0;
-    return ch;
+  int i; char c;
+  
+  operator char&() {
+    return c;
   }
   
-};
-
-struct Z
-{
-  template< class T >
-  operator T&() const {
-    static char ch = 0;
-    return *reinterpret_cast<T*>(&ch);
+  operator const char&() const {
+    return c;
+  }
+  
+  operator volatile char&() volatile {
+    return c;
+  }
+  
+  operator const volatile char&() const volatile {
+    return c;
   }
   
 };
 
 #include <iostream>
-#include <memory>
 
 int main()
 {
@@ -49,11 +49,6 @@ int main()
   
   Y y;
   std::cout << &y << std::endl;
-  std::cout << std::addressof(y) << std::endl;
+  std::cout << static_cast<void*>(&y.c) << std::endl;
   std::cout << pezzi::addressof(y) << std::endl;
-  
-  Y z;
-  std::cout << &z << std::endl;
-  std::cout << std::addressof(z) << std::endl;
-  std::cout << pezzi::addressof(z) << std::endl;
 }
