@@ -1,42 +1,12 @@
-#include <type_traits>
-
 namespace pezzi
 {
-  template< bool Cond, class T >
-  struct add_const_if_c {
-    typedef T type;
-  };
-  template< class T >
-  struct add_const_if_c<true, T> {
-    typedef T const type;
-  };
-  
-  template< bool Cond, class T >
-  struct add_volatile_if_c {
-    typedef T type;
-  };
-  template< class T >
-  struct add_volatile_if_c<true, T> {
-    typedef T volatile type;
-  };
-  
-  template< class From, class To >
-  struct add_same_cv_qualifiers_as
-  {
-    typedef typename add_const_if_c<
-      std::is_const<From>::value,
-      typename add_volatile_if_c<
-        std::is_volatile<From>::value, To
-      >::type
-    >::type type;
-  };
-  
-  
   template< class T >
   inline T* addressof( T& x )
   {
     return reinterpret_cast<T*>(
-      &reinterpret_cast<typename add_same_cv_qualifiers_as<T, char>::type&>(x)
+      const_cast<char*>(
+        &reinterpret_cast<char const volatile&>(x)
+      )
     );
     
   }
