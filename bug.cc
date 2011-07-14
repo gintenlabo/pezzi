@@ -1,9 +1,13 @@
-template<class T>
-void f() {
-  []( bool b ){ return b; };
+#include <functional>
+#include <iostream>
+
+std::function<int()> f(int const &i)
+{
+  return [=]() { return i; };
 }
 
 int main()
 {
-  f<int>();
+  int x = 42;
+  std::cout << f(x)();  // uninitialized value
 }
