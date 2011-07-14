@@ -1,13 +1,12 @@
-#include <functional>
 #include <iostream>
 
-std::function<int()> f(int const &i)
+void f( int const &i )
 {
-  return [=]() { return i; };
+  std::cout << [=](){ return i; }();
 }
 
 int main()
 {
   int x = 42;
-  std::cout << f(x)();  // uninitialized value
+  f(x); // uninitialized value
 }
