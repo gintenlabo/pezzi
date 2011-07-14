@@ -1,9 +1,17 @@
+#include <utility>
+
 namespace pezzi
 {
   template< class Derived >
   struct equality_comparable
   {
-    friend constexpr bool operator!=( Derived const& lhs, Derived const& rhs ) {
+    template< class D_ = Derived const&,
+      bool Noexcept = noexcept( std::declval<D_>() == std::declval<D_>() )
+    >
+    friend constexpr
+      bool operator!=( Derived const& lhs, Derived const& rhs )
+        noexcept( Noexcept )
+    {
       return !( lhs == rhs );
     }
     
@@ -39,6 +47,10 @@ namespace ns
     return x.a == y.a;
   }
   
+  struct non_comparable
+    : private pezzi::equality_comparable<non_comparable>
+  {
+  };
 }
 
 #include <iostream>
@@ -50,4 +62,9 @@ int main()
   
   ns::non_literal_class c(1), d(2);
   std::cout << std::boolalpha << ( c != d ) << std::endl;
+  
+  /*
+  ns::non_comparable e, f;
+  std::cout << std::boolalpha << ( e != f ) << std::endl;
+  */
 }
