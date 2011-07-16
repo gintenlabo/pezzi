@@ -23,11 +23,14 @@ namespace pezzi
       {
         Iter last_swap = first;
         
-        for( Iter i = first, j = std::next(i); j != last; ++i, ++j ) {
+        Iter i = first, j = std::next(i);
+        for(;;) {
           if( comp( *j, *i ) ) {
             std::iter_swap( i, j );
             last_swap = i;
           }
+          if( j == last ){ break; }
+          ++i; ++j;
         }
         
         if( first == last_swap ){ return; }
@@ -38,11 +41,14 @@ namespace pezzi
       {
         Iter last_swap = last;
         
-        for( Iter i = last, j = std::prev(i); j != first; --i, --j ) {
+        Iter i = last, j = std::prev(i);
+        for(;;) {
           if( comp( *i, *j ) ) {
             std::iter_swap( i, j );
             last_swap = i;
           }
+          if( j == first ){ break; }
+          --i; --j;
         }
         
         if( last == last_swap ){ return; }
