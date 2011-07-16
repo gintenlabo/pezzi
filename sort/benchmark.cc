@@ -14,16 +14,11 @@ inline std::vector<T> generate_vector( std::size_t n, F f )
   return vec;
 }
 
-#include <algorithm>
-#include "bubble_sort.hpp"
-#include "shaker_sort.hpp"
-#include "insertion_sort.hpp"
-#include "comb_sort.hpp"
-
 #include <boost/progress.hpp>
 #include <random>
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 
 template< class Sort >
 inline void benchmark( std::vector<int> vec, std::size_t m, Sort sort )
@@ -51,6 +46,14 @@ inline void benchmark( std::vector<int> vec, std::size_t m, Sort sort )
     }
   }
 }
+
+#include "bubble_sort.hpp"
+#include "shaker_sort.hpp"
+#include "insertion_sort.hpp"
+#include "comb_sort.hpp"
+#include "quick_sort.hpp"
+#include "intro_sort.hpp"
+
 
 #include <unistd.h> // for getopt
 #include <boost/lexical_cast.hpp>
@@ -109,16 +112,25 @@ int main( int argc, char* argv[] )
   benchmark( vec, m, []( int* first, int* last ){
     std::make_heap( first, last ); std::sort_heap( first, last );
   } );
-  // バブルソート
-  std::cout << "Bubble Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::bubble_sort( first, last ); } );
-  // シェイカーソート
-  std::cout << "Shaker Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::shaker_sort( first, last ); } );
-  // 挿入ソート
-  std::cout << "Insertion Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort( first, last ); } );
+  if( m < 100 )
+  {
+    // バブルソート
+    std::cout << "Bubble Sort...\n";
+    benchmark( vec, m, []( int* first, int* last ){ pezzi::bubble_sort( first, last ); } );
+    // シェイカーソート
+    std::cout << "Shaker Sort...\n";
+    benchmark( vec, m, []( int* first, int* last ){ pezzi::shaker_sort( first, last ); } );
+    // 挿入ソート
+    std::cout << "Insertion Sort...\n";
+    benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort( first, last ); } );
+  }
   // コムソート
   std::cout << "Comb Sort...\n";
   benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort( first, last ); } );
+  // クイックソート
+  std::cout << "Quick Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::quick_sort( first, last ); } );
+  // イントロソート
+  std::cout << "Intro Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::intro_sort( first, last ); } );
 }
