@@ -16,12 +16,29 @@ namespace pezzi
     if( first == last ){ return; }
     --last;
     
+    // *pos が最小ならば，先頭に持ってくる
+    if( comp( *pos, *first ) ) {
+      for(;;) {
+        std::iter_swap( last, pos );
+        
+        if( first == last ) {
+          return;
+        }
+        pos = last; --last;
+      }
+    }
+    
+    // それ以外の場合には，適切な位置に持っていく
     while( comp( *pos, *last ) ) {
       std::iter_swap( last, pos );
       
+      // 冒頭に if( comp( *pos, *first ) ) を追加したことで
+      // このテストは不要になる
+      /*
       if( first == last ) {
         return;
       }
+      */
       pos = last; --last;
     }
   }
