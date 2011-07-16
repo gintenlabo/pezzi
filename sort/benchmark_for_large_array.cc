@@ -1,4 +1,4 @@
-// 小さいな配列に対する各種アルゴリズムのベンチマーク
+// 大きな配列に対する各種アルゴリズムのベンチマーク
 #include <vector>
 
 // 関数から vector を生成
@@ -26,29 +26,17 @@ inline std::vector<T> generate_vector( std::size_t n, F f )
 #include <cassert>
 
 template< class Sort >
-inline void benchmark( std::vector<int> vec, std::size_t m, Sort sort )
+inline void benchmark( std::vector<int> vec, Sort sort )
 {
-  std::size_t const n = vec.size();
-  
   {
     // 測定性能
     boost::progress_timer t;
-    
-    for( int i = 0; i + m <= n; i += m ) {
-      sort( &vec[i], &vec[i+m] );
-    }
+    sort( vec );
   }
   
   // チェック
-  for( int i = 0; i + m <= n; i += m ) {
-    if( !std::is_sorted( &vec[i], &vec[i+m] ) ){
-      std::cerr << "! NOT SORTED !\n";
-      for( std::size_t j = i; j < i + m; ++j ) {
-        std::cerr << vec[j] << ' ';
-      }
-      std::cerr << "\n\n";
-      assert( !"sorting algorithm is wrong." );
-    }
+  if( !std::is_sorted( vec.begin(), vec.end() ) ){
+    assert( !"sorting algorithm is wrong." );
   }
 }
 
@@ -59,7 +47,6 @@ inline void benchmark( std::vector<int> vec, std::size_t m, Sort sort )
 int main( int argc, char* argv[] )
 {
   std::size_t n_ = 5000000;
-  std::size_t m_ = 5;
   
   {
     int opt;
@@ -69,12 +56,9 @@ int main( int argc, char* argv[] )
          case 'n':
           n_ = boost::lexical_cast<int>( optarg );
           break;
-         case 'm':
-          m_ = boost::lexical_cast<int>( optarg );
-          break;
          default:
           std::cerr <<
-            boost::format( "usage: %s [ -n all-size ] [ -m seg-size ]\n" ) % argv[0];
+            boost::format( "usage: %s [ -n size ]\n" ) % argv[0];
           return 1;
         }
       } catch( boost::bad_lexical_cast& ) {
@@ -86,29 +70,32 @@ int main( int argc, char* argv[] )
   }
   
   std::size_t const n = n_;
-  std::size_t const m = m_;
   
   std::mt19937 gen( static_cast<std::uint32_t>( std::time(0) ) );
-  std::normal_distribution<> dist( 0.0, std::sqrt(m) );
+  std::normal_distribution<> dist( 0.0, std::sqrt(n) );
   
   auto const vec = generate_vector<int>( n, [&](){ return int( round( dist(gen) ) ); } );
   
   // 一応，先頭を軽く表示しておく
-  for( std::size_t i = 0; i < m; ++i ) {
+  for( std::size_t i = 0; i < 10; ++i ) {
     std::cout << vec[i] << ' ';
   }
   std::cout << "\n\n";
   
   // std::sort
   std::cout << "std::sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ std::sort( first, last ); } );
+  benchmark( vec, []( std::vector<int>& vec ){
+    std::sort( vec.begin(), vec.end() );
+  } );
+  // ヒープソート
+  std::cout << "Heap Sort...\n";
+  benchmark( vec, []( std::vector<int>& vec ){
+    std::make_heap( vec.begin(), vec.end() );
+    std::sort_heap( vec.begin(), vec.end() );
+  } );
   // コムソート
   std::cout << "Comb Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort( first, last ); } );
-  // コムソートA
-  std::cout << "Comb Sort A...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_a( first, last ); } );
-  // コムソートB
-  std::cout << "Comb Sort B...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_b( first, last ); } );
+  benchmark( vec, []( std::vector<int>& vec ){
+    pezzi::comb_sort( vec.begin(), vec.end() );
+  } );
 }
