@@ -6,27 +6,7 @@
 
 namespace pezzi
 {
-  // pos を [ first, last ) の中の適切な位置に挿入
-  // [ first, last ) はソート済みでなければならない
-  // pos の位置には最大の要素が入る
-  // なお last == pos でも構わない
-  template< class Iter, class Comp >
-  void insert_sorted( Iter first, Iter last, Iter pos, Comp comp )
-  {
-    if( first == last ){ return; }
-    --last;
-    
-    while( comp( *pos, *last ) ) {
-      std::iter_swap( last, pos );
-      
-      if( first == last ) {
-        return;
-      }
-      pos = last; --last;
-    }
-  }
-  
-  // 挿入ソート本体
+  // 挿入ソート
   template< class Iter, class Comp >
   void insertion_sort( Iter first, Iter last, Comp comp )
   {
@@ -45,7 +25,7 @@ namespace pezzi
             break;
           }
           Iter l = k; --k;
-          if( comp( *k, temp ) ) {
+          if( !comp( temp, *k ) ) {
             *l = std::move(temp);
             break;
           }
