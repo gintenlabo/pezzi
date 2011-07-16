@@ -74,62 +74,22 @@ namespace pezzi
     return pezzi::comb_sort_a( first, last, less<>() );
   }
   
-  // コムソートB（魔改造）
+  // コムソートB （比率 4/3 ）
   template< class Iter, class Comp >
   void comb_sort_b( Iter first, Iter last, Comp comp )
   {
     if( first == last ){ return; }
-    std::size_t h = ( last - first ) * 10 / 13;
+    std::size_t h = ( last - first ) * 3 / 4;
     if( h < 1 ){ return; }
     
-    // 櫛を入れる関数
-    auto comb = [&]() {
+    while( h > 1 ) {
       for( Iter i = first, j = i + h; j != last; ++i, ++j ) {
         if( comp( *j, *i ) ){
           std::iter_swap( i, j );
         }
       }
-    };
-    
-    //  櫛の目が 8 より大きい場合
-    while( h > 8 )
-    {
-      if( h <= 10 ){
-        h = 11;
-        comb();
-        h = 8;
-        break;
-      }
-      comb();
-      h = h * 10 / 13;
+      h = h * 3 / 4;
     }
-    
-    // 8 以下の場合
-    if( h == 8 ) {
-      comb();
-      h = 6;// 8 * 10 / 13;
-    }
-    if( h == 7 ) {
-      comb();
-      h = 5;// 7 * 10 / 13;
-    }
-    if( h == 6 ) {
-      comb();
-      h = 4; // 6 * 10 / 13;
-    }
-    if( h > 4 ) {
-      comb();
-      h = 3; // (5or4) * 10 / 13;
-    }
-    if( h == 3 ) {
-      comb();
-      h = 2;// 2 * 10 / 13;
-    }
-    if( h == 2 ) {
-      comb();
-      h = 1;
-    }
-    
     pezzi::shaker_sort( first, last, comp );
   }
   

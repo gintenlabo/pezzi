@@ -94,10 +94,12 @@ int main( int argc, char* argv[] )
   auto const vec = generate_vector<int>( n, [&](){ return int( round( dist(gen) ) ); } );
   
   // 一応，先頭を軽く表示しておく
-  for( std::size_t i = 0; i < m; ++i ) {
-    std::cout << vec[i] << ' ';
+  if( m <= 200 ) {
+    for( std::size_t i = 0; i < m; ++i ) {
+      std::cout << vec[i] << ' ';
+    }
+    std::cout << "\n\n";
   }
-  std::cout << "\n\n";
   
   // std::sort
   std::cout << "std::sort...\n";
