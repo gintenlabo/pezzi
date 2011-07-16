@@ -98,10 +98,16 @@ int main( int argc, char* argv[] )
   }
   std::cout << "\n\n";
   
-  // 挿入ソート（swap版）
-  std::cout << "Swap Version...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort_a( first, last ); } );
-     // 挿入ソート（move版）
-  std::cout << "Move Version...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort_b( first, last ); } );
+  // std::sort
+  std::cout << "std::sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ std::sort( first, last ); } );
+  // バブルソート
+  std::cout << "Bubble Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::bubble_sort( first, last ); } );
+  // シェイカーソート
+  std::cout << "Shaker Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::shaker_sort( first, last ); } );
+  // 挿入ソート
+  std::cout << "Insertion Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort( first, last ); } );
 }
