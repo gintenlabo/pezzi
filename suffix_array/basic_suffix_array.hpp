@@ -24,7 +24,7 @@ namespace pezzi
     }
     
     // イテレータ
-    typedef charT const*    value_type;
+    typedef std::size_t     value_type;
     typedef value_type const* iterator;
     typedef iterator    const_iterator;
     
@@ -36,10 +36,15 @@ namespace pezzi
     // 探索
     std::pair<iterator, iterator> search( charT const* t, std::size_t n ) const
     {
+      std::size_t const npos = -1;
       // とりあえず std::equal_range を使う
-      return std::equal_range( this->begin(), this->end(), t,
-        [n]( charT const* p, charT const* q ){
+      return std::equal_range( this->begin(), this->end(), npos,
+        [=]( std::size_t i, std::size_t j ) -> bool {
+          char const* const p = ( i == npos ) ? t : s_ + i;
+          char const* const q = ( j == npos ) ? t : s_ + j;
+          
           return traits::compare( p, q, n ) < 0;
+          
         }
       );
     }
@@ -59,13 +64,13 @@ namespace pezzi
       std::unique_ptr<value_type[]> buf( new value_type[n] );
       
       for( std::size_t i = 0; i < n; ++i ) {
-        buf[i] = s + i;
+        buf[i] = i;
       }
       
       // とりあえず std::sort を使う
       std::sort( buf.get(), buf.get() + n,
-        [=]( charT const* p, charT const* q ){
-          return traits::compare( p, q, n ) < 0;
+        [=]( std::size_t i, std::size_t j ){
+          return traits::compare( s + i, s + j, n ) < 0;
         }
       );
       
