@@ -17,6 +17,7 @@ inline std::vector<T> generate_vector( std::size_t n, F f )
 #include <algorithm>
 #include "bubble_sort.hpp"
 #include "shaker_sort.hpp"
+#include "insertion_sort.hpp"
 
 #include <boost/progress.hpp>
 #include <random>
@@ -99,4 +100,7 @@ int main( int argc, char* argv[] )
   // シェイカーソート
   std::cout << "Shaker Sort...\n";
   benchmark( vec, m, []( int* first, int* last ){ pezzi::shaker_sort( first, last ); } );
+  // 挿入ソート
+  std::cout << "Insertion Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort( first, last ); } );
 }
