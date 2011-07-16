@@ -37,11 +37,13 @@ namespace pezzi
     std::pair<iterator, iterator> search( charT const* t, std::size_t n ) const
     {
       std::size_t const npos = -1;
+      charT const* s = s_;
+      
       // とりあえず std::equal_range を使う
       return std::equal_range( this->begin(), this->end(), npos,
         [=]( std::size_t i, std::size_t j ) -> bool {
-          char const* const p = ( i == npos ) ? t : s_ + i;
-          char const* const q = ( j == npos ) ? t : s_ + j;
+          char const* const p = ( i == npos ) ? t : s + i;
+          char const* const q = ( j == npos ) ? t : s + j;
           
           return traits::compare( p, q, n ) < 0;
           
