@@ -19,7 +19,7 @@ namespace pezzi
           last_swap = j;
         }
       }
-      --last = last_swap;
+      last = last_swap;
     }
   }
   

@@ -107,30 +107,16 @@ int main( int argc, char* argv[] )
   // std::sort
   std::cout << "std::sort...\n";
   benchmark( vec, m, []( int* first, int* last ){ std::sort( first, last ); } );
-  // ヒープソート
-  std::cout << "Heap Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){
-    std::make_heap( first, last ); std::sort_heap( first, last );
-  } );
-  if( m < 100 )
-  {
-    // バブルソート
-    std::cout << "Bubble Sort...\n";
-    benchmark( vec, m, []( int* first, int* last ){ pezzi::bubble_sort( first, last ); } );
-    // シェイカーソート
-    std::cout << "Shaker Sort...\n";
-    benchmark( vec, m, []( int* first, int* last ){ pezzi::shaker_sort( first, last ); } );
-    // 挿入ソート
-    std::cout << "Insertion Sort...\n";
-    benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort( first, last ); } );
-  }
   // コムソート
-  std::cout << "Comb Sort...\n";
+  std::cout << "Comb Sort (Insertion)...\n";
   benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort( first, last ); } );
-  // クイックソート
-  std::cout << "Quick Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::quick_sort( first, last ); } );
-  // イントロソート
-  std::cout << "Intro Sort...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::intro_sort( first, last ); } );
+  // コムソート
+  std::cout << "Comb Sort (Original)...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_orig( first, last ); } );
+  // コムソート
+  std::cout << "Comb Sort (Bubble)...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_b( first, last ); } );
+  // コムソート
+  std::cout << "Comb Sort (Shaker)...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_shaker( first, last ); } );
 }
