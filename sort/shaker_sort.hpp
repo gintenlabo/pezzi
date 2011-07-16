@@ -15,6 +15,8 @@ namespace pezzi
     if( first == last ){ return; }
     // このアルゴリズムの実装内部では， last は最後の要素の次ではなく，最後の要素を示す
     --last;
+    // 一要素のみの場合も抜ける
+    if( first == last ){ return; }
     
     for(;;) {
       // 順方向
