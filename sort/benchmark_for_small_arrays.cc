@@ -104,13 +104,21 @@ int main( int argc, char* argv[] )
   // std::sort
   std::cout << "std::sort...\n";
   benchmark( vec, m, []( int* first, int* last ){ std::sort( first, last ); } );
+  // ヒープソート
+  std::cout << "Heap Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){
+    std::make_heap( first, last ); std::sort_heap( first, last );
+  } );
+  // バブルソート
+  std::cout << "Bubble Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::bubble_sort( first, last ); } );
+  // シェイカーソート
+  std::cout << "Shaker Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::shaker_sort( first, last ); } );
+  // 挿入ソート
+  std::cout << "Insertion Sort...\n";
+  benchmark( vec, m, []( int* first, int* last ){ pezzi::insertion_sort( first, last ); } );
   // コムソート
   std::cout << "Comb Sort...\n";
   benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort( first, last ); } );
-  // コムソートA
-  std::cout << "Comb Sort A...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_a( first, last ); } );
-  // コムソートB
-  std::cout << "Comb Sort B...\n";
-  benchmark( vec, m, []( int* first, int* last ){ pezzi::comb_sort_b( first, last ); } );
 }
