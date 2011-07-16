@@ -40,7 +40,7 @@ inline void benchmark( std::vector<int> vec, std::size_t m, Sort sort )
   
   // チェック
   for( int i = 0; i + m <= n; i += m ) {
-    std::is_sorted( &vec[i], &vec[i+m] );
+    assert( std::is_sorted( &vec[i], &vec[i+m] ) );
   }
 }
 
