@@ -36,19 +36,40 @@ namespace pezzi
     // 探索
     std::pair<iterator, iterator> search( charT const* t, std::size_t n ) const
     {
-      std::size_t const npos = -1;
-      charT const* s = s_;
+      // 最適化のため，メンバ変数 s_ はローカルに置いておく
+      charT const* const s = s_;
       
-      // とりあえず std::equal_range を使う
-      return std::equal_range( this->begin(), this->end(), npos,
-        [=]( std::size_t i, std::size_t j ) -> bool {
-          char const* const p = ( i == npos ) ? t : s + i;
-          char const* const q = ( j == npos ) ? t : s + j;
-          
-          return traits::compare( p, q, n ) < 0;
-          
+      // 探索範囲
+      iterator first = this->begin();
+      iterator last  = this->end();
+      
+      // [ first, last ) の幅を狭める
+      for(;;)
+      {
+        std::size_t const len = last - first;
+        if( len == 0 ){ return std::make_pair( first, last ); }
+        
+        std::size_t const half   = len / 2;
+        iterator    const middle = first + half;
+        
+        int const compare_result = traits::compare( s + *middle, t, n );
+        
+        if( compare_result < 0 ) {
+          first = middle + 1;
         }
-      );
+        else if( compare_result > 0 ) {
+          last = middle;
+        }
+        else {
+          // 縮め完了
+          // lower bound は [ first, middle ) に，
+          // upper bound は [ middle + 1, last ) にある
+          return std::make_pair(
+            lower_bound_( s, first,    middle, t, n ),
+            upper_bound_( s, middle + 1, last, t, n )
+          );
+        }
+      }
     }
     std::pair<iterator, iterator> search( charT const* t ) const
     {
@@ -77,6 +98,50 @@ namespace pezzi
       );
       
       return buf;
+    }
+    
+    // suffix array の lower bound
+    // s に対応するソート済みの suffix array [ first, last ) の中から，
+    // 冒頭 n 文字が t とマッチする最初の要素を指すイテレータを返す
+    static iterator lower_bound_(
+      charT const* s, iterator first, iterator last, charT const* t, std::size_t n )
+    {
+      for(;;) {
+        std::size_t const len = last - first;
+        if( len == 0 ){ return first; }
+        
+        std::size_t const half   = len / 2;
+        iterator    const middle = first + half;
+        
+        if( traits::compare( s + *middle, t, n ) < 0 ) {
+          first = middle + 1;
+        }
+        else {
+          last = middle;
+        }
+      }
+    }
+    
+    // suffix array の upper bound
+    // s に対応するソート済みの suffix array [ first, last ) の中から，
+    // 冒頭 n 文字が t とマッチする最後の要素の次を指すイテレータを返す
+    static iterator upper_bound_(
+      charT const* s, iterator first, iterator last, charT const* t, std::size_t n )
+    {
+      for(;;) {
+        std::size_t const len = last - first;
+        if( len == 0 ){ return first; }
+        
+        std::size_t const half   = len / 2;
+        iterator    const middle = first + half;
+        
+        if( traits::compare( s + *middle, t, n ) <= 0 ) {
+          first = middle + 1;
+        }
+        else {
+          last = middle;
+        }
+      }
     }
     
   };
