@@ -6,8 +6,8 @@
 int main()
 {
   int const major = BOOST_VERSION / 100000,
-             minor = BOOST_VERSION / 100 % 1000,
-             patch = BOOST_VERSION % 100;
+            minor = BOOST_VERSION / 100 % 1000,
+            patch = BOOST_VERSION % 100;
   
   std::cout << major << '.' << minor << '.' << patch << '\n';
   
