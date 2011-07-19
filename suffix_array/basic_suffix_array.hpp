@@ -54,6 +54,26 @@ namespace pezzi
       : s_(s), len_(len), max_query_len_( max_query_len ),
         suffix_( make_suffix_array_( s_, len_, max_query_len_ ) ) {}
     
+    // ソートアルゴリズムを外部から指定する版．
+    // sort は，確保された未ソートの suffix array の先頭を示す iterator iter に対し，
+    // sort( iter, iter + len, s, max_query_len )
+    // という形で呼び出される．
+    // Complexity : Ο( len + Complexity{ sort( iter, iter+len, s, max_query_len ) } ),
+    //              where iter is a value of basic_suffix_array::iterator.
+    // Requires : range [ s, s + len ) is valid, traits::length(s) <= len ;
+    //            after calling sort( iter, iter+len, s, max_query_len ),
+    //              for all i, j ( i <= j ) in [ iter, iter+len )
+    //              traits::compare( s + *i, s + *j, max_query_len ) shall be <= 0.
+    // Postcond : this->target()           == s,
+    //            this->size()             == len,
+    //            this->max_query_length() == max_query_len,
+    //            this->valid()            == true
+    template< class Sort >
+    basic_suffix_array
+      ( charT const* s, std::size_t len, std::size_t max_query_len, Sort sort )
+        : s_(s), len_(len), max_query_len_( max_query_len ),
+          suffix_( make_suffix_array_with_sort_( s_, len_, std::move(sort) ) ) {}
+    
     
     // 各種情報取得
     
@@ -90,21 +110,23 @@ namespace pezzi
     // イテレータ
     // this->target() に対する，ソート済みの suffix array へのアクセスを得る
     // Precond: this->valid() == true
-    typedef std::size_t     value_type;
-    typedef value_type const* iterator;
-    typedef iterator    const_iterator;
+    typedef std::size_t           value_type;
+    typedef value_type      *       iterator;
+    typedef value_type const* const_iterator;
     
     // Returns: this->search( "", 0 ).first
-    iterator begin() const {
+    const_iterator begin() const {
       assert( this->valid() );
       return suffix_.get();
     }
     // Returns: this->search( "", 0 ).second
-    iterator    end() const { return begin() + len_; }
+    const_iterator    end() const { return begin() + len_; }
     // Returns: begin()/end()
-    iterator cbegin() const { return begin(); }
-    iterator   cend() const { return end(); }
+    const_iterator cbegin() const { return begin(); }
+    const_iterator   cend() const { return end(); }
     
+    
+    // 検索
     
     // suffix array の中から，冒頭が [ q, q+n ) と一致する要素の range を検索する
     // Complexity : Ο( n * log( this->size() ) )
@@ -114,13 +136,15 @@ namespace pezzi
     // Postcond : this->begin() <= result.first
     //            result.first  <= result.second
     //            result.second <= this->end()
-    std::pair<iterator, iterator> search( charT const* q, std::size_t n ) const
+    std::pair<const_iterator, const_iterator>
+      search( charT const* q, std::size_t n ) const
     {
       assert( this->valid() );
       assert( n <= max_query_len_ );
       return equal_range_( s_, this->begin(), this->end(), q, n );
     }
-    std::pair<iterator, iterator> search( charT const* q ) const
+    std::pair<const_iterator, const_iterator>
+      search( charT const* q ) const
     {
       return this->search( q, traits::length(q) );
     }
@@ -134,9 +158,11 @@ namespace pezzi
     
     // 実装用関数群
     
-    // suffix array を作る
+    // ソートアルゴリズムを指定して suffix array を作る
+    template< class Sort >
     static std::unique_ptr<value_type[]>
-      make_suffix_array_( charT const* s, std::size_t len, std::size_t max_query_len )
+      make_suffix_array_(
+        charT const* s, std::size_t len, std::size_t max_query_len, Sort sort )
     {
       // メモリ確保
       // len == 0 の場合はメモリ確保する必要はないが，それはレアケースであるため，
@@ -149,29 +175,43 @@ namespace pezzi
         buf[i] = i;
       }
       
-      // 先頭 max_query_len の辞書順にソートする
-      std::sort( buf.get(), buf.get() + len,
-        [=]( std::size_t i, std::size_t j ){
-          return traits::compare( s + i, s + j, max_query_len ) < 0;
-        }
-      );
+      // ソートアルゴリズムを呼ぶ
+      sort( buf.get(), buf.get() + len, s, max_query_len );
       
       return buf;
     }
     
+    // デフォルトのソートアルゴリズムで suffix array を作る
+    static std::unique_ptr<value_type[]>
+      make_suffix_array_( charT const* s, std::size_t len, std::size_t max_query_len )
+    {
+      return make_suffix_array_(
+        s, len, max_query_len,
+        []( iterator first, iterator last, charT const* t, std::size_t n ) {
+          std::sort(
+            first, last,
+            [t,n]( std::size_t i, std::size_t j ){
+              return traits::compare( t + i, t + j, n ) < 0;
+            }
+          );
+        }
+      );
+    }
+    
     // s に対応するソート済みの suffix array [ first, last ) の中から，
     // 冒頭 n 文字が q とマッチする最初の要素を指すイテレータを返す
-    static iterator
+    static const_iterator
       lower_bound_(
-        charT const* s, iterator first, iterator last, charT const* q, std::size_t n
+        charT const* s, const_iterator first, const_iterator last,
+        charT const* q, std::size_t n
       )
     {
       for(;;) {
         std::size_t const len = last - first;
         if( len == 0 ){ return first; }
         
-        std::size_t const half   = len / 2;
-        iterator    const middle = first + half;
+        std::size_t    const half   = len / 2;
+        const_iterator const middle = first + half;
         
         if( traits::compare( s + *middle, q, n ) < 0 ) {
           first = middle + 1;
@@ -184,17 +224,18 @@ namespace pezzi
     
     // s に対応するソート済みの suffix array [ first, last ) の中から，
     // 冒頭 n 文字が q とマッチする最後の要素の次を指すイテレータを返す
-    static iterator
+    static const_iterator
       upper_bound_(
-        charT const* s, iterator first, iterator last, charT const* q, std::size_t n
+        charT const* s, const_iterator first, const_iterator last,
+        charT const* q, std::size_t n
       )
     {
       for(;;) {
         std::size_t const len = last - first;
         if( len == 0 ){ return first; }
         
-        std::size_t const half   = len / 2;
-        iterator    const middle = first + half;
+        std::size_t    const half   = len / 2;
+        const_iterator const middle = first + half;
         
         if( traits::compare( s + *middle, q, n ) <= 0 ) {
           first = middle + 1;
@@ -208,9 +249,10 @@ namespace pezzi
     // s に対応するソート済みの suffix array [ first, last ) の中から，
     // 冒頭 n 文字が q とマッチする最初の要素を指すイテレータ lower と，
     // 冒頭 n 文字が q とマッチする最後の要素の次を指すイテレータ upper の組を返す
-    static std::pair<iterator, iterator>
+    static std::pair<const_iterator, const_iterator>
       equal_range_(
-        charT const* s, iterator first, iterator last, charT const* q, std::size_t n
+        charT const* s, const_iterator first, const_iterator last,
+        charT const* q, std::size_t n
       )
     {
       // [ first, last ) の幅を狭める
@@ -219,8 +261,8 @@ namespace pezzi
         std::size_t const len = last - first;
         if( len == 0 ){ return std::make_pair( first, last ); }
         
-        std::size_t const half   = len / 2;
-        iterator    const middle = first + half;
+        std::size_t    const half   = len / 2;
+        const_iterator const middle = first + half;
         
         int const compare_result = traits::compare( s + *middle, q, n );
         

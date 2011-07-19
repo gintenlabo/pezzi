@@ -14,7 +14,7 @@ int main( int argc, char* argv[] )
   std::size_t const search_length = std::strlen(search_string);
   
   // suffix array ÇÃç\íz
-  pezzi::c_suffix_array sa( target_string, target_length, search_length );
+  pezzi::c_suffix_array const sa( target_string, target_length, search_length );
   
   // É_ÉìÉv
   BOOST_FOREACH( auto const i, sa ) {
