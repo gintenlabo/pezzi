@@ -2,17 +2,16 @@
 // ローカル変数についてはよくテストしてないのでアレですが
 
 #include <iostream>
+#include "get_typename.hpp"
 
-void f( int && ) {
-  std::cout << "f( int&& )\n";
+void f() {
+  std::cout << std::endl;
 }
 
-void f( int& ) {
-  std::cout << "f( int& )\n";
-}
-
-void f( void (&)() ) {
-  std::cout << "f( void(&)() )\n";
+template< class T, class... Args >
+void f( T && , Args&&... args ) {
+  std::cout << pezzi::get_typename<T&&>() << ", ";
+  return f( std::forward<Args>(args)... );
 }
 
 
@@ -20,7 +19,19 @@ void f( void (&)() ) {
 #define STD_FORWARD(x) std::forward<decltype(x)>(x)
 
 template< class... Args >
-void g( Args&&... args )
+void g1( Args&&... args )
+{
+  f( STD_FORWARD(args)... );
+}
+
+template< class... Args >
+void g2( Args const&... args )
+{
+  f( STD_FORWARD(args)... );
+}
+
+template< class... Args >
+void g3( Args... args )
 {
   f( STD_FORWARD(args)... );
 }
@@ -32,11 +43,46 @@ int main()
   int i;
   int &r = i;
   
-  g( 0 );               // calls f(int&&)
-  g( i );               // calls f(int&)
-  g( STD_FORWARD(i) );  // calls f(int&&)
-  g( STD_FORWARD(r) );  // calls f(int&)
-
-  g( h );               // calls f( void(&)() )
-  // g( STD_FORWARD(h) );  // 無☆理
+  std::cout << "g1(0): ";
+  g1( 0 );
+  std::cout << "g2(0): ";
+  g2( 0 );
+  std::cout << "g3(0): ";
+  g3( 0 );
+  
+  std::cout << "g1(i): ";
+  g1( i );
+  std::cout << "g2(i): ";
+  g2( i );
+  std::cout << "g3(i): ";
+  g3( i );
+  
+  std::cout << "g1( STD_FORWARD(i) ): ";
+  g1( STD_FORWARD(i) );
+  std::cout << "g2( STD_FORWARD(i) ): ";
+  g2( STD_FORWARD(i) );
+  std::cout << "g3( STD_FORWARD(i) ): ";
+  g3( STD_FORWARD(i) );
+  
+  std::cout << "g1( STD_FORWARD(r) ): ";
+  g1( STD_FORWARD(r) );
+  std::cout << "g2( STD_FORWARD(r) ): ";
+  g2( STD_FORWARD(r) );
+  std::cout << "g3( STD_FORWARD(r) ): ";
+  g3( STD_FORWARD(r) );
+  
+  std::cout << "g1( h ): ";
+  g1( h );
+  std::cout << "g2( h ): ";
+  g2( h );
+  std::cout << "g3( h ): ";
+  g3( h );
+  
+  std::cout << "g1( STD_FORWARD(h) ): ";
+  g1( STD_FORWARD(h) );
+  // std::cout << "g2( STD_FORWARD(h) ): ";
+  // g2( STD_FORWARD(h) );
+  std::cout << "g3( STD_FORWARD(h) ): ";
+  g3( STD_FORWARD(h) );
+  
 }
