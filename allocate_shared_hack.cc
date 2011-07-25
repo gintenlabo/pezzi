@@ -10,18 +10,18 @@ struct buffer_info_
   std::size_t size;
 };
 
-// C++0x を期待
+// C++0x を期待して最小限の実装のみを行う
 template< class T, class AlignAs = T >
 struct hacked_allocator
 {
-  // GCC-4.6 はこれを要求するみたい
   template< class U >
   struct rebind { typedef hacked_allocator<U, AlignAs> other; };
   
   template< class U, class A_ >
   friend class hacked_allocator;
   
-  // construct
+  // info.size には確保する余計なバッファの大きさを指定
+  // 確保したバッファの大きさは info.addr に格納される
   explicit hacked_allocator( buffer_info_& info )
     : p( &info ) {}
   
@@ -39,14 +39,21 @@ struct hacked_allocator
     p->addr = static_cast<char*>(buf) + buf_offset;
     p = 0;
     
-    std::cout << "allocated:   " << buf << std::endl;
+    // デバッグ用情報出力
+    // std::cout << "allocated:   " << buf << std::endl;
     
     return static_cast<T*>(buf);
+    
   }
-  void deallocate( T* p, std::size_t ) {
+  
+  void deallocate( T* p, std::size_t )
+  {
     void* const addr = p;
     ::operator delete( addr );
-    std::cout << "deallocated: " << addr << std::endl;
+    
+    // デバッグ用情報出力
+    // std::cout << "deallocated: " << addr << std::endl;
+    
   }
   
  private:
@@ -72,8 +79,9 @@ inline auto make_shared_with_aligned_extra_buffer( std::size_t buffer_size, Args
   void* const buf = rs.addr;
   assert( buf != 0 );
   
-  std::cout << "p.get(): " << static_cast<void*>(p.get()) << std::endl;
-  std::cout << "buf:     " << buf << std::endl;
+  // デバッグ用情報出力
+  // std::cout << "p.get(): " << static_cast<void*>(p.get()) << std::endl;
+  // std::cout << "buf:     " << buf << std::endl;
   
   return std::make_pair( std::move(p), buf );
   
@@ -85,7 +93,7 @@ template< class T, class... Args >
 inline auto make_shared_with_extra_buffer( std::size_t buffer_size, Args&&... args )
   -> std::pair< std::shared_ptr<T>, void* >
 {
-  return make_shared_with_aligned_extra_buffer<T>(
+  return make_shared_with_aligned_extra_buffer<T, T>(
     buffer_size, std::forward<Args>(args)...
   );
 }
@@ -207,7 +215,8 @@ struct Hoge
     : x()
   {
     // 例外安全性チェック
-    if( gen_uniform_int(5) == 0 ) {
+    // 10% の確率で例外が発生する
+    if( gen_uniform_int(10) == 0 ) {
       std::cout << "\n ! ! ! EXCEPTION WAS RAISED ! ! ! \n\n";
       throw std::runtime_error("exception!");
     }
@@ -221,26 +230,55 @@ struct Hoge
   
 };
 
+#include <boost/progress.hpp>
 
 int main()
 {
-  try
+  // ゼロ要素の配列を確保しても問題ない？
+  auto p0 = make_shared_array<Hoge>(0);
+  std::cout << p0 << std::endl;
+  std::cout << std::endl;
+  
+  // 例外安全性の簡単なチェック
+  for( int i = 0; i < 5; ++i )
   {
-    auto p0 = make_shared_array<Hoge>(0);
+    try
+    {
+      auto p = make_shared_array<Hoge>( gen_uniform_int(10) );
+    }
+    catch( std::exception& e )
+    {
+      std::cout << std::endl;
+      std::cout << "exception catched. continue\n";
+    }
+    
     std::cout << std::endl;
     
-    std::cout << p0 << std::endl;
-    std::cout << std::endl;
-    
-    auto p1 = make_shared_array<Hoge>(5);
-    std::cout << std::endl;
-    
-    std::cout << p1 << std::endl;
-    std::cout << std::endl;
   }
-  catch( std::exception& e )
+  
+  // 速度比較
+  std::size_t const n = 1000000;
+  std::size_t const m = 10;
+  
+  // int の m 要素の配列を n 回構築／破棄するのにかかった時間を測定する
+  // まず普通に構築する場合
   {
-    std::cout << "\nterminated.\n";
-    return 1;
+    boost::progress_timer t;
+    
+    for( std::size_t i = 0; i < n; ++i ) {
+      std::shared_ptr<int> p( new int[m](), std::default_delete<int[]>() );
+      p.reset();
+    }
+    
+  }
+  // make_shared_array を使った場合
+  {
+    boost::progress_timer t;
+    
+    for( std::size_t i = 0; i < n; ++i ) {
+      std::shared_ptr<int> p = make_shared_array<int>(m);
+      p.reset();
+    }
+    
   }
 }
