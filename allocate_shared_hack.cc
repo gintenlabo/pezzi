@@ -23,21 +23,25 @@ struct hacked_allocator
   // info.size には確保する余計なバッファの大きさを指定
   // 確保したバッファの大きさは info.addr に格納される
   explicit hacked_allocator( buffer_info_& info )
-    : p( &info ) {}
+    : p_( &info ) {}
   
   template< class U, class A_ >
   hacked_allocator( hacked_allocator<U, A_> const& src )
-    : p( src.p ) {}
+    : p_( src.p_ ) {}
   
   
   T* allocate( std::size_t n )
   {
-    assert( p != 0 );
+    assert( p_ != 0 );
     
     std::ptrdiff_t const buf_offset = adjust_align_( n * sizeof(T) );
-    void* const buf = ::operator new ( buf_offset + p->size );
-    p->addr = static_cast<char*>(buf) + buf_offset;
-    p = 0;
+    void* const buf = ::operator new ( buf_offset + p_->size );
+    
+    // p_->addr を経由し，余分に確保したメモリへのアドレスを返す
+    p_->addr = static_cast<char*>(buf) + buf_offset;
+    
+    p_ = 0; // これは本来なら要らない
+            // 間違って二回以上 allocate した場合に検出できるようにしているだけ
     
     // デバッグ用情報出力
     // std::cout << "allocated:   " << buf << std::endl;
@@ -57,7 +61,7 @@ struct hacked_allocator
   }
   
  private:
-  buffer_info_* p;
+  buffer_info_* p_;
   
   static std::size_t adjust_align_( std::size_t size )
   {
@@ -140,13 +144,15 @@ struct placement_array
   }
   
   // reset
+  // n_ が 0 なら，何もしない．
+  // そうでなければ，範囲 [ p_, p_ + n_ ) にあるオブジェクトを破棄する
   void reset() noexcept {
     // T の dtor は例外を投げないとする
     std::size_t n = n_;
     T* p = p_;
     
-    while( n > 0 ) {
-      p[--n].~T();
+    while( n --> 0 ) {
+      p[n].~T();
     }
     
     // p_ は変更する必要なし
@@ -163,6 +169,14 @@ struct placement_array
     for( ; n_ < n; ++n_ ) {
       ::new( p + n_ ) T();
     }
+    /*
+    // あるいは
+    this->p_ = ::new( static_cast<void*>(p) ) T[n]();
+    this->n_ = n;
+    // こちらのほうが効率が良い上に，少し改良すれば例外安全の強い保証も満たせる．
+    // しかし，この場合， p != this->p_ となる可能性がある（ N3290 5.3.4/12 より）
+    // それは都合が悪いので，今のところは，一つ一つ new していく．
+    */
   }
   
   // その他のメンバは面倒なので後で実装する（しないかも）
@@ -217,7 +231,7 @@ struct Hoge
     // 例外安全性チェック
     // 10% の確率で例外が発生する
     if( gen_uniform_int(10) == 0 ) {
-      std::cout << "\n ! ! ! EXCEPTION WAS RAISED ! ! ! \n\n";
+      std::cout << "\n ! ! ! EXCEPTION IS RAISED ! ! ! \n\n";
       throw std::runtime_error("exception!");
     }
     std::cout << "Hoge::Hoge()  <" << this << ">\n";
@@ -249,7 +263,7 @@ int main()
     catch( std::exception& e )
     {
       std::cout << std::endl;
-      std::cout << "exception catched. continue\n";
+      std::cout << "exception caught. continue\n";
     }
     
     std::cout << std::endl;
