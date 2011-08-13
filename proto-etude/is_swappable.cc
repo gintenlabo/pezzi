@@ -7,6 +7,10 @@ namespace proto_etude
   // 実装用
   struct is_value_swappable_
   {
+    template< class T, class U, class = void >
+    struct apply;
+    
+   private:
     template< class T, class U,
       class = decltype(
         proto_etude::value_swap( std::declval<T>(), std::declval<U>() ), 0
@@ -17,12 +21,21 @@ namespace proto_etude
     template< class T, class U, class = void >
     static std::false_type test_( ... );
     
-    template< class T, class U >
-    struct apply
-    {
-      typedef decltype( test_<T, U>(0) ) type;
-    };
-    
+  };
+  
+  template< class T, class U, class >
+  struct is_value_swappable_::apply {
+    typedef decltype( test_<T, U>(0) ) type;
+  };
+  
+  template< class T, class U >
+  struct is_value_swappable_::apply< T, U,
+    typename std::enable_if<
+      std::is_void<T>::value || std::is_void<U>::value
+    >::type
+  >
+  {
+    typedef std::false_type type;
   };
   
   template< class T, class U >
@@ -68,6 +81,7 @@ int main()
 {
   std::cout << std::boolalpha;
   
+  std::cout << proto_etude::is_swappable<void>::value << std::endl;
   std::cout << proto_etude::is_swappable<int>::value << std::endl;
   std::cout << proto_etude::is_swappable<NonCopyable>::value << std::endl;
   std::cout << proto_etude::is_swappable<NonCopyableButSwappable>::value << std::endl;
