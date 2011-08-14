@@ -1,12 +1,12 @@
-// undefined : Haskell 縺ｮ繧｢繝ｬ
+// undefined : Haskell が羨ましかったので
 
 #include <cassert>
 #include <stdexcept>
-#include <cassert>
 #include <utility>
 
 namespace proto_etude
 {
+  /*
   // あらゆる型に評価できるが，実際に評価されうる場合にはコンパイルエラーとなる型
   struct undefined_t
   {
@@ -24,36 +24,40 @@ namespace proto_etude
     
   };
   undefined_t const undefined = {};
-  
+  */
   
   // あらゆる型に評価できるが，実際に評価されると例外を投げる型
-  struct error_t
+  struct undefined_t
   {
+    // 任意の型への変換
     template< class T >
     operator T&&() const {
-      throw std::logic_error( "etude::error_t::operator T&&() was used" );
+      throw std::logic_error( "etude::undefined must not be used!" );
     }
+    
   };
+  undefined_t const undefined = {};
   
-  // 評価されると例外を投げる．
-  // 戻り値はあらゆる型として評価可能
-  inline error_t error( std::string const& what ) {
-    throw std::logic_error( what );
-  }
-  inline error_t error( char const* what ) {
-    throw std::logic_error( what );
-  }
   
-  // 引数省略版
-  inline error_t error() {
-    return proto_etude::error( "etude::error() was used." );
-  }
+  // 例外を投げる関数．
+  // throw との違いは，戻り値をあらゆる型として評価できる点
   
-  // 例外オブジェクト指定版
+  // 例外オブジェクトを指定して例外を投げる
   template< class Exception, class... Args >
-  inline error_t error( Args&&... args )
+  inline undefined_t error( Args&&... args )
   {
     throw Exception( std::forward<Args>(args)... );
+  }
+  
+  // std::logic_error を投げる
+  template< class What >
+  inline undefined_t error( What && what ) {
+    throw std::logic_error( std::forward<What>( what ) );
+  }
+  
+  // デフォルトのエラーメッセージでエラーを投げる
+  inline undefined_t error() {
+    throw std::logic_error( "etude::error() must not be used!" );
   }
   
 }
@@ -78,6 +82,11 @@ int main()
   
   constexpr int i = true ? 0 : proto_etude::error();
   std::cout <<  dereference(&i) << std::endl;
-  // std::cout <<  dereference( (int*)0 ) << std::endl;
   
+  try {
+    std::cout <<  dereference( (int*)0 ) << std::endl;
+  }
+  catch( std::runtime_error& ) {
+    std::cout << "OK.\n";
+  }
 }
