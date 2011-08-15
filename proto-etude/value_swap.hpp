@@ -60,7 +60,7 @@ namespace proto_etude
       )
     >
     inline void value_swap( T && x, U && y )
-      ETUDE_NOEXCEPT_IF( Noexcept )
+      ETUDE_NOTHROW_IF( Noexcept )
     {
       swap( std::forward<T>(x), std::forward<U>(y) );
     }

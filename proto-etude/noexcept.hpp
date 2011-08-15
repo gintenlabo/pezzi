@@ -14,7 +14,9 @@
   ( __GNUC__ < 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ < 6 ) )
 
   #define ETUDE_NOEXCEPT(expr)    ( sizeof( (void)(expr), 0 ) == 0 )
-  #define ETUDE_NOEXCEPT_IF(expr)
+  #define ETUDE_NOTHROW_IF(expr)
+  #define ETUDE_NOTHROW
+  #define ETUDE_NOTHROW_AS(expr)
 
 #else
 
@@ -24,7 +26,9 @@
     #define ETUDE_NOEXCEPT(expr)  noexcept(expr)
   #endif
   
-  #define ETUDE_NOEXCEPT_IF(expr) noexcept(expr)
+  #define ETUDE_NOTHROW_IF(expr)  noexcept(expr)
+  #define ETUDE_NOTHROW           noexcept
+  #define ETUDE_NOTHROW_AS(expr)  noexcept( noexcept(expr) )
 
 #endif
 
