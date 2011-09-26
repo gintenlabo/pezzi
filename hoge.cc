@@ -3,14 +3,20 @@
 // このコメントはエンコードを UTF-8 にするために書いてるのです。
 
 #include <iostream>
-#include "get_typename.hpp"
+
+// 滅茶苦茶大きなファイルを作る
+// 256 文字 * 1024 * 1024 行
 
 int main()
 {
-  struct X {
-    int i;
-  };
+  std::ios::sync_with_stdio(false);
   
-  X const x = {0};
-  std::cout << pezzi::get_typename<decltype(x.i)>() << std::endl;
+  std::string s;
+  for( int i = 0; i < 255; ++i ) {
+    s += char( 'a' + i % 26 );
+  }
+  
+  for( int i = 0; i < 1024*1024; ++i ) {
+    std::cout << s << std::endl;
+  }
 }
