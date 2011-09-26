@@ -35,6 +35,12 @@ namespace proto_etude
       throw std::logic_error( "etude::undefined must not be used!" );
     }
     
+    // 任意の関数適用
+    template< class... Types >
+    undefined_t operator()( Args&&... ) const {
+      return {};
+    }
+    
   };
   undefined_t const undefined = {};
   
