@@ -1,17 +1,33 @@
-#define STATIC_ASSERT( expr ) static_assert( expr, #expr )
+// tested on gcc-4.7-20110924 (experimental)
 
-// tested function
-int f( int );
+template< class T >
+T&& declval();
 
-STATIC_ASSERT( sizeof( f({}) ) == sizeof(int) );  // OK
+// #1
+template< class T >
+auto f( int )
+  -> decltype( int{ declval<T>() } );
 
-auto g()
-  -> decltype( f({}) );  // OK
+// #2
+template< class >
+void f( ... );
 
-template<
-  class R = decltype( f({}) ) // fails to compile here
->
-R h();
+
+#define STATIC_ASSERT( ... ) static_assert( __VA_ARGS__, #__VA_ARGS__ )
+
+template< class T, class U >
+struct is_same {
+  static constexpr bool value = false;
+};
+
+template< class T >
+struct is_same<T, T> {
+  static constexpr bool value = true;
+};
+
+
+STATIC_ASSERT( is_same< decltype( f<int>(0) ),  int >::value );  // OK; f<int>(0) calls #1.
+STATIC_ASSERT( is_same< decltype( f<int*>(0) ), void >::value ); // static assertion fails; f<int*>(0) should call #2, because int{ (int*)0 } is ill-formed, but calls #1.
 
 int main()
 {
