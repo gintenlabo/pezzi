@@ -1,34 +1,21 @@
-// tested on gcc-4.7-20110924 (experimental)
+template< class T >
+class ClassTemplate {};
 
 template< class T >
-T&& declval();
-
-// #1
-template< class T >
-auto f( int )
-  -> decltype( int{ declval<T>() } );
-
-// #2
-template< class >
-void f( ... );
-
-
-#define STATIC_ASSERT( ... ) static_assert( __VA_ARGS__, #__VA_ARGS__ )
-
-template< class T, class U >
-struct is_same {
-  static constexpr bool value = false;
+struct Metafunction {
+  typedef T type;
 };
 
 template< class T >
-struct is_same<T, T> {
-  static constexpr bool value = true;
-};
+using TemplateAlias = ClassTemplate< typename Metafunction<T>::type >;
 
+using Alias = TemplateAlias<int>; // typedef TemplateAlias<int> Alias だと再現しない
 
-STATIC_ASSERT( is_same< decltype( f<int>(0) ),  int >::value );  // OK; f<int>(0) calls #1.
-STATIC_ASSERT( is_same< decltype( f<int*>(0) ), void >::value ); // static assertion fails; f<int*>(0) should call #2, because int{ (int*)0 } is ill-formed, but calls #1.
+template< class T >
+void f( TemplateAlias<T> );
 
 int main()
 {
+  Alias x;  // TemplateAlias<int> x; だと再現しない
+  f( x );   // f<int>(x) だと再現しない
 }
