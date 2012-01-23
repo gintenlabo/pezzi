@@ -1,21 +1,52 @@
-template< class T >
-class ClassTemplate {};
+#include <type_traits>
+#include <utility>
 
-template< class T >
-struct Metafunction {
-  typedef T type;
+struct Less
+{
+  template< class T, class U >
+  auto operator()( T const& x, U const& y ) const
+    -> decltype( x < y )
+  {
+    return x < y;
+  }
 };
 
-template< class T >
-using TemplateAlias = ClassTemplate< typename Metafunction<T>::type >;
+template< class T, class Comp = Less,
+  class = typename std::enable_if<
+    std::is_constructible< bool,
+      decltype(
+        std::declval<Comp&>()(
+          *std::declval<T const&>(),
+          *std::declval<T const&>()
+        )
+      )
+    >::value
+  >::type
+>
+inline bool pointee_before( T const& x, T const& y, Comp && comp = Comp() ) {
+  return y ? ( x ? bool( comp( *x, *y ) ) : true ) : false;
+}
 
-using Alias = TemplateAlias<int>; // typedef TemplateAlias<int> Alias だと再現しない
-
-template< class T >
-void f( TemplateAlias<T> );
+template< class T, class U, class Comp = Less,
+  class = typename std::enable_if<
+    std::is_constructible< bool,
+      decltype(
+        std::declval<Comp&>()(
+          *std::declval<T const&>(),
+          *std::declval<U const&>()
+        )
+      )
+    >::value
+  >::type
+>
+inline bool pointee_before( T const& x, U const& y, Comp && comp = Comp() ) {
+  return y ? ( x ? bool( comp( *x, *y ) ) : true ) : false;
+}
 
 int main()
 {
-  Alias x;  // TemplateAlias<int> x; だと再現しない
-  f( x );   // f<int>(x) だと再現しない
+  int* p = 0;
+  int const* q = 0;
+  
+  pointee_before( p, q );
 }
