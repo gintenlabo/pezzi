@@ -46,25 +46,6 @@ struct keyword_manager {
   }
 };
 
-template<class RandomGen>
-auto make_random_values(RandomGen&& gen, std::size_t n)
-    -> std::vector<typename RandomGen::result_type> {
-  std::vector<typename RandomGen::result_type> result;
-  result.reserve(n);
-  for (std::size_t i = 0; i < n; ++i) {
-    result.push_back(gen());
-  }
-  return result;
-}
-
-std::mt19937& get_random_generator() {
-  static std::mt19937 gen = [] () -> std::mt19937 {
-    auto seeds = make_random_values(std::random_device(), 16);
-    std::seed_seq sseq(seeds.begin(), seeds.end());
-    return std::mt19937(sseq);
-  }();
-  return gen;
-}
 
 int main() {
   keyword_manager const keywords[] = {
@@ -79,7 +60,16 @@ int main() {
     client.add_keyword(kw);
   }
 
-  auto& gen = get_random_generator();
+  typedef std::mt19937::result_type seed_t;
+  seed_t seed = [] () -> seed_t {
+    std::random_device rnd;
+    std::uniform_int_distribution<seed_t>
+        dist(std::mt19937::min(), std::mt19937::max());
+    return dist(rnd);
+  }();
+
+  std::cout << "seed = " << seed << std::endl;
+  std::mt19937 gen(seed);
 
   double span = 1;
 
