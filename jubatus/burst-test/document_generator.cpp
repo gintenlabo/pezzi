@@ -77,12 +77,13 @@ int main() {
 
   double span = 1;
   double tick = 0.1;
+  int result_output_interval = static_cast<int>(std::round(span/tick));
 
   std::uniform_real_distribution<> dist(0, span);
   auto generate_pos = [&] (double pos0)  { return pos0 + dist(gen); };
 
   double pos0 = 0;
-  for (double pos0 = 0; ; pos0 += tick) {
+  for (int i = 0; ; pos0 += tick, i = (i + 1) % result_output_interval) {
     auto t0 = std::chrono::steady_clock::now();
 
     std::vector<st_document> documents;
@@ -97,13 +98,15 @@ int main() {
     }
     client.add_documents(documents);
 
-    auto results = client.get_all_bursted_results_at(pos0);
-    if (!results.empty()) {
-      std::cout << "burst detected: " << pos0;
-      for (auto&& result : results) {
-        std::cout << " " << result.first;
+    if (i == 0) {
+      auto results = client.get_all_bursted_results_at(pos0);
+      if (!results.empty()) {
+        std::cout << "burst detected: " << pos0;
+        for (auto&& result : results) {
+          std::cout << " " << result.first;
+        }
+        std::cout << std::endl;
       }
-      std::cout << std::endl;
     }
 
     std::this_thread::sleep_until(t0 + std::chrono::duration<double>(tick));
