@@ -4,6 +4,8 @@
 #include <cassert>
 #include <random>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 using jubatus::burst::client::burst;
 using jubatus::burst::st_document;
@@ -74,11 +76,15 @@ int main() {
   std::mt19937 gen(seed);
 
   double span = 1;
+  double tick = 0.1;
 
   std::uniform_real_distribution<> dist(0, span);
   auto generate_pos = [&] (double pos0)  { return pos0 + dist(gen); };
 
-  for (double pos0 = 0; pos0 < 100; pos0 += span) {
+  double pos0 = 0;
+  for (double pos0 = 0; ; pos0 += tick) {
+    auto t0 = std::chrono::steady_clock::now();
+
     std::vector<st_document> documents;
     documents.reserve(100);
     for (size_t i = 0; i < 100; ++i) {
@@ -99,14 +105,7 @@ int main() {
       }
       std::cout << std::endl;
     }
-  }
 
-  auto status = client.get_status();
-  for (auto const& p : status) {
-    std::cout << p.first << ":" << std::endl;
-    for (auto const& p2 : p.second) {
-      std::cout << "  " << p2.first << " " << p2.second << std::endl;
-    }
-    std::cout << std::endl;
+    std::this_thread::sleep_until(t0 + std::chrono::duration<double>(tick));
   }
 }
