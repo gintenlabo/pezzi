@@ -10,7 +10,7 @@ using jubatus::burst::st_document;
 
 const std::string host = "localhost";
 constexpr int port = 9199;
-const std::string name = "";
+const std::string name = "sample";
 constexpr int timeout_sec = 10;
 
 struct keyword_manager {
