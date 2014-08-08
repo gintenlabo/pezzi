@@ -4,13 +4,15 @@
 #include <cassert>
 #include <random>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 using jubatus::burst::client::burst;
 using jubatus::burst::st_document;
 
 const std::string host = "localhost";
 constexpr int port = 9199;
-const std::string name = "";
+const std::string name = "sample";
 constexpr int timeout_sec = 10;
 
 struct keyword_manager {
@@ -49,8 +51,10 @@ struct keyword_manager {
 
 int main() {
   keyword_manager const keywords[] = {
-    {"aaa", 10, 3, 10, 0.001, 0.1},
-    {"bbb", 15, 4, 10, 0.001, 0.1},
+    {"aaa", 10,  3, 10, 0.001, 0.1},
+    {"bbb", 15,  4, 10, 0.001, 0.1},
+    {"ccc",  0, 10, 20, 0.001, 0.1},
+    {"ddd",  0,  2, 15, 0.002, 0.2},
   };
 
   burst client(host, port, name, timeout_sec);
@@ -72,11 +76,16 @@ int main() {
   std::mt19937 gen(seed);
 
   double span = 1;
+  double tick = 0.1;
+  int result_output_interval = static_cast<int>(std::round(span/tick));
 
   std::uniform_real_distribution<> dist(0, span);
   auto generate_pos = [&] (double pos0)  { return pos0 + dist(gen); };
 
-  for (double pos0 = 0; pos0 < 100; pos0 += span) {
+  double pos0 = 0;
+  for (int i = 0; ; pos0 += tick, i = (i + 1) % result_output_interval) {
+    auto t0 = std::chrono::steady_clock::now();
+
     std::vector<st_document> documents;
     documents.reserve(100);
     for (size_t i = 0; i < 100; ++i) {
@@ -89,13 +98,17 @@ int main() {
     }
     client.add_documents(documents);
 
-    auto results = client.get_all_bursted_results_at(pos0);
-    if (!results.empty()) {
-      std::cout << "burst detected: " << pos0;
-      for (auto&& result : results) {
-        std::cout << " " << result.first;
+    if (i == 0) {
+      auto results = client.get_all_bursted_results_at(pos0);
+      if (!results.empty()) {
+        std::cout << "burst detected: " << pos0;
+        for (auto&& result : results) {
+          std::cout << " " << result.first;
+        }
+        std::cout << std::endl;
       }
-      std::cout << std::endl;
     }
+
+    std::this_thread::sleep_until(t0 + std::chrono::duration<double>(tick));
   }
 }
