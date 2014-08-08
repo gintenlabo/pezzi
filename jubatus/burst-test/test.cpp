@@ -100,4 +100,13 @@ int main() {
       std::cout << std::endl;
     }
   }
+
+  auto status = client.get_status();
+  for (auto const& p : status) {
+    std::cout << p.first << ":" << std::endl;
+    for (auto const& p2 : p.second) {
+      std::cout << "  " << p2.first << " " << p2.second << std::endl;
+    }
+    std::cout << std::endl;
+  }
 }
