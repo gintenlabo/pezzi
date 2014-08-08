@@ -49,8 +49,10 @@ struct keyword_manager {
 
 int main() {
   keyword_manager const keywords[] = {
-    {"aaa", 10, 3, 10, 0.001, 0.1},
-    {"bbb", 15, 4, 10, 0.001, 0.1},
+    {"aaa", 10,  3, 10, 0.001, 0.1},
+    {"bbb", 15,  4, 10, 0.001, 0.1},
+    {"ccc",  0, 10, 20, 0.001, 0.1},
+    {"ddd",  0,  2, 15, 0.002, 0.2},
   };
 
   burst client(host, port, name, timeout_sec);
