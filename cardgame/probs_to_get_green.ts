@@ -76,8 +76,7 @@ const spells = 39;
 const multiLands = 8;
 const valueLands = 2;
 
-const replicate = <T>(n: number, x: T): T[] =>
-  Array.from({ length: n }, () => x)
+const replicate = <T>(n: number, x: T): T[] => Array(n).fill(x);
 
 const main = () => {
   for (let vergeLands = 0; vergeLands <= 4; vergeLands += 1) {
