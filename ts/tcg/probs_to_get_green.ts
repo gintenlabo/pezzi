@@ -32,17 +32,9 @@ const sample = <T>(n: number, arr: readonly T[]): T[] => {
   return result;
 };
 
-
-const _cardTypes = [
-  'spell',
-  'multiLand',
-  'valueLand',
-  'basicLand',
-  'vergeLand',
-] as const;
+const _cardTypes = ['spell', 'multiLand', 'valueLand', 'basicLand', 'vergeLand'] as const;
 
 type CardType = (typeof _cardTypes)[number];
-
 
 const inspectResults = ['ok', 'bad', 'screw', 'flood'];
 type InspectResult = (typeof inspectResults)[number];
@@ -65,7 +57,7 @@ const inspectHand = (hand: CardType[]): InspectResult => {
         break;
       case 'vergeLand':
         verge += 1;
-        break
+        break;
       default:
         break;
     }
@@ -81,7 +73,7 @@ const inspectHand = (hand: CardType[]): InspectResult => {
     return 'ok';
   }
   return 'bad';
-}
+};
 
 const cardsInDeck = 60;
 const spells = 39;
@@ -106,9 +98,7 @@ const main = () => {
       ...replicate<CardType>(basicLands, 'basicLand'),
       ...replicate<CardType>(vergeLands, 'vergeLand'),
     ];
-    const results: Record<InspectResult, number> = Object.fromEntries(
-      inspectResults.map((result) => [result, 0]),
-    );
+    const results: Record<InspectResult, number> = Object.fromEntries(inspectResults.map((result) => [result, 0]));
     const trials = 10000000;
     for (const _ of range(trials)) {
       const result = inspectHand(sample(7, deck));
