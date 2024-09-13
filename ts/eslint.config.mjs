@@ -1,5 +1,6 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from "eslint-config-prettier";
 import { includeIgnoreFile } from "@eslint/compat";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,7 @@ export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
+  eslintConfigPrettier,
   {
     languageOptions: {
       parserOptions: {
