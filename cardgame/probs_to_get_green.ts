@@ -87,7 +87,11 @@ const spells = 39;
 const multiLands = 8;
 const valueLands = 2;
 
-const replicate = <T>(n: number, x: T): T[] => Array(n).fill(x);
+function* replicate<T>(n: number, x: T): Generator<T> {
+  for (const _ of range(n)) {
+    yield x;
+  }
+}
 
 const main = () => {
   for (const vergeLands of inclusiveRange(0, 4)) {
