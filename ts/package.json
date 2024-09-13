@@ -8,7 +8,9 @@
     "lint": "eslint './**/*.ts'",
     "lint:fix": "eslint './**/*.ts' --fix",
     "format": "prettier './**/*.{json,js,ts,mjs}' --check",
-    "format:fix": "prettier './**/*.{json,js,ts,mjs}' --write"
+    "format:fix": "prettier './**/*.{json,js,ts,mjs}' --write",
+    "check": "run-s type-check lint format",
+    "fix": "run-s type-check lint:fix format:fix"
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
@@ -16,6 +18,7 @@
     "@types/eslint__js": "^8.42.3",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
+    "npm-run-all2": "^6.2.2",
     "prettier": "^3.3.3",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
