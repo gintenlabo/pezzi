@@ -1,3 +1,14 @@
+function* range(n: number): Generator<number> {
+  for (let i = 0; i < n; i += 1) {
+    yield i;
+  }
+}
+function* inclusiveRange(a: number, b: number): Generator<number> {
+  for (let i = a; i <= b; i += 1) {
+    yield i;
+  }
+}
+
 const getRandomInt = (min: number, max: number): number => {
   const minCeiled = Math.ceil(min);
   const maxFloored = Math.floor(max);
@@ -7,7 +18,7 @@ const getRandomInt = (min: number, max: number): number => {
 const sample = <T>(n: number, arr: readonly T[]): T[] => {
   const result = [...arr];
   const len = result.length;
-  for (let i = 0; i < n; i += 1) {
+  for (const i of range(n)) {
     if (i >= len) {
       break;
     }
@@ -79,7 +90,7 @@ const valueLands = 2;
 const replicate = <T>(n: number, x: T): T[] => Array(n).fill(x);
 
 const main = () => {
-  for (let vergeLands = 0; vergeLands <= 4; vergeLands += 1) {
+  for (const vergeLands of inclusiveRange(0, 4)) {
     const basicLands = cardsInDeck - spells - multiLands - valueLands - vergeLands;
     console.log('basic lands:', basicLands);
     console.log('verge lands:', vergeLands);
@@ -94,7 +105,7 @@ const main = () => {
       inspectResults.map((result) => [result, 0]),
     );
     const trials = 10000000;
-    for (let i = 0; i < trials; ++i) {
+    for (const _ of range(trials)) {
       const result = inspectHand(sample(7, deck));
       results[result] += 1;
     }
