@@ -23,6 +23,7 @@ const sample = <T>(n: number, arr: readonly T[]): T[] => {
       break;
     }
     const j = getRandomInt(i, len);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     [result[i], result[j]] = [result[j]!, result[i]!];
   }
   if (result.length > n) {
@@ -32,7 +33,7 @@ const sample = <T>(n: number, arr: readonly T[]): T[] => {
 };
 
 
-const cardTypes = [
+const _cardTypes = [
   'spell',
   'multiLand',
   'valueLand',
@@ -40,7 +41,7 @@ const cardTypes = [
   'vergeLand',
 ] as const;
 
-type CardType = (typeof cardTypes)[number];
+type CardType = (typeof _cardTypes)[number];
 
 
 const inspectResults = ['ok', 'bad', 'screw', 'flood'];
@@ -111,10 +112,12 @@ const main = () => {
     const trials = 10000000;
     for (const _ of range(trials)) {
       const result = inspectHand(sample(7, deck));
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       results[result]! += 1;
     }
     console.log(`results (${trials} trials):`);
     inspectResults.forEach((result) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       console.log(`${result}:`, results[result]! / trials);
     });
     console.log('');
