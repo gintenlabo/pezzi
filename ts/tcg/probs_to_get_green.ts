@@ -23,7 +23,7 @@ const sample = <T>(n: number, arr: readonly T[]): T[] => {
       break;
     }
     const j = getRandomInt(i, len);
-    [result[i], result[j]] = [result[j], result[i]];
+    [result[i], result[j]] = [result[j]!, result[i]!];
   }
   if (result.length > n) {
     result.length = n;
@@ -99,11 +99,11 @@ const main = () => {
     console.log('basic lands:', basicLands);
     console.log('verge lands:', vergeLands);
     const deck: CardType[] = [
-      ...replicate(spells, 'spell'),
-      ...replicate(multiLands, 'multiLand'),
-      ...replicate(valueLands, 'valueLand'),
-      ...replicate(basicLands, 'basicLand'),
-      ...replicate(vergeLands, 'vergeLand'),
+      ...replicate<CardType>(spells, 'spell'),
+      ...replicate<CardType>(multiLands, 'multiLand'),
+      ...replicate<CardType>(valueLands, 'valueLand'),
+      ...replicate<CardType>(basicLands, 'basicLand'),
+      ...replicate<CardType>(vergeLands, 'vergeLand'),
     ];
     const results: Record<InspectResult, number> = Object.fromEntries(
       inspectResults.map((result) => [result, 0]),
@@ -111,11 +111,11 @@ const main = () => {
     const trials = 10000000;
     for (const _ of range(trials)) {
       const result = inspectHand(sample(7, deck));
-      results[result] += 1;
+      results[result]! += 1;
     }
     console.log(`results (${trials} trials):`);
     inspectResults.forEach((result) => {
-      console.log(`${result}:`, results[result] / trials);
+      console.log(`${result}:`, results[result]! / trials);
     });
     console.log('');
   }
