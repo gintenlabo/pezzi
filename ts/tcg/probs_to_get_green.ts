@@ -80,7 +80,7 @@ const spells = 39;
 const multiLands = 8;
 const valueLands = 2;
 
-function* replicate<T>(n: number, x: T): Generator<T> {
+function* replicate<const T>(n: number, x: T): Generator<T> {
   for (const _ of range(n)) {
     yield x;
   }
@@ -92,11 +92,11 @@ const main = () => {
     console.log('basic lands:', basicLands);
     console.log('verge lands:', vergeLands);
     const deck: CardType[] = [
-      ...replicate<CardType>(spells, 'spell'),
-      ...replicate<CardType>(multiLands, 'multiLand'),
-      ...replicate<CardType>(valueLands, 'valueLand'),
-      ...replicate<CardType>(basicLands, 'basicLand'),
-      ...replicate<CardType>(vergeLands, 'vergeLand'),
+      ...replicate(spells, 'spell'),
+      ...replicate(multiLands, 'multiLand'),
+      ...replicate(valueLands, 'valueLand'),
+      ...replicate(basicLands, 'basicLand'),
+      ...replicate(vergeLands, 'vergeLand'),
     ];
     const results: Record<InspectResult, number> = Object.fromEntries(inspectResults.map((result) => [result, 0]));
     const trials = 10000000;
