@@ -15,7 +15,7 @@ const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
 };
 
-const sample = <T>(n: number, arr: readonly T[]): T[] => {
+const sample = <T>(n: number, arr: Iterable<T>): T[] => {
   const result = [...arr];
   const len = result.length;
   for (const i of range(n)) {
