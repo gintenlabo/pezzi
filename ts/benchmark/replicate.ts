@@ -34,7 +34,7 @@ suite
     console.log(String(event.target));
   })
   .on('complete', function (this: Benchmark.Suite) {
-    const fastests = this.filter('fastest').map('name') as string[];
-    console.log(`Fastest is ${JSON.stringify(fastests)}`);
+    const fastestNames = this.filter('fastest').map('name') as string[];
+    console.log(`Fastest is ${JSON.stringify(fastestNames)}`);
   })
   .run({ async: true });
