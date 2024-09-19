@@ -10,7 +10,7 @@ export const sample = <T>(n: number, arr: Iterable<T>): T[] => {
   const result = [...arr];
   const len = result.length;
   for (const i of range(n)) {
-    if (i >= len) {
+    if (i >= len - 1) {
       break;
     }
     const j = getRandomInt(i, len);
