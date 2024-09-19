@@ -1,28 +1,6 @@
 import { entriesToObject } from '../utils/entriesToObject';
 import { range, inclusiveRange, replicate } from '../utils/generators';
-
-const getRandomInt = (min: number, max: number): number => {
-  const minCeiled = Math.ceil(min);
-  const maxFloored = Math.floor(max);
-  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
-};
-
-const sample = <T>(n: number, arr: Iterable<T>): T[] => {
-  const result = [...arr];
-  const len = result.length;
-  for (const i of range(n)) {
-    if (i >= len) {
-      break;
-    }
-    const j = getRandomInt(i, len);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    [result[i], result[j]] = [result[j]!, result[i]!];
-  }
-  if (result.length > n) {
-    result.length = n;
-  }
-  return result;
-};
+import { sample } from '../utils/random';
 
 const _cardTypes = ['spell', 'multiLand', 'valueLand', 'basicLand', 'vergeLand'] as const;
 
