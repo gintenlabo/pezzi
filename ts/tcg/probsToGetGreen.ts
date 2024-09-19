@@ -1,15 +1,5 @@
 import { entriesToObject } from '../utils/entriesToObject';
-
-function* range(n: number): Generator<number> {
-  for (let i = 0; i < n; i += 1) {
-    yield i;
-  }
-}
-function* inclusiveRange(a: number, b: number): Generator<number> {
-  for (let i = a; i <= b; i += 1) {
-    yield i;
-  }
-}
+import { range, inclusiveRange, replicate } from '../utils/generators';
 
 const getRandomInt = (min: number, max: number): number => {
   const minCeiled = Math.ceil(min);
@@ -81,12 +71,6 @@ const cardsInDeck = 60;
 const spells = 39;
 const multiLands = 8;
 const valueLands = 2;
-
-function* replicate<const T>(n: number, x: T): Generator<T> {
-  for (const _ of range(n)) {
-    yield x;
-  }
-}
 
 const main = () => {
   for (const vergeLands of inclusiveRange(0, 4)) {
