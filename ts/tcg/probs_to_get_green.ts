@@ -1,3 +1,5 @@
+import { entriesToObject } from '../utils/entriesToObject';
+
 function* range(n: number): Generator<number> {
   for (let i = 0; i < n; i += 1) {
     yield i;
@@ -36,7 +38,7 @@ const _cardTypes = ['spell', 'multiLand', 'valueLand', 'basicLand', 'vergeLand']
 
 type CardType = (typeof _cardTypes)[number];
 
-const inspectResults = ['ok', 'bad', 'screw', 'flood'];
+const inspectResults = ['ok', 'bad', 'screw', 'flood'] as const;
 type InspectResult = (typeof inspectResults)[number];
 
 const inspectHand = (hand: CardType[]): InspectResult => {
@@ -98,17 +100,15 @@ const main = () => {
       ...replicate(basicLands, 'basicLand'),
       ...replicate(vergeLands, 'vergeLand'),
     ];
-    const results: Record<InspectResult, number> = Object.fromEntries(inspectResults.map((result) => [result, 0]));
+    const results: Record<InspectResult, number> = entriesToObject(inspectResults.map((result) => [result, 0]));
     const trials = 10000000;
     for (const _ of range(trials)) {
       const result = inspectHand(sample(7, deck));
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      results[result]! += 1;
+      results[result] += 1;
     }
     console.log(`results (${trials} trials):`);
     inspectResults.forEach((result) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      console.log(`${result}:`, results[result]! / trials);
+      console.log(`${result}:`, results[result] / trials);
     });
     console.log('');
   }
