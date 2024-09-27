@@ -8,12 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@date-fns/tz':
+        specifier: ^1.1.2
+        version: 1.1.2
       benchmark:
         specifier: ^2.1.4
         version: 2.1.4
       csv-writer:
         specifier: ^1.6.0
         version: 1.6.0
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
     devDependencies:
       '@eslint/compat':
         specifier: ^1.1.1
@@ -53,6 +59,9 @@ importers:
         version: 8.5.0(eslint@9.10.0)(typescript@5.5.4)
 
 packages:
+
+  '@date-fns/tz@1.1.2':
+    resolution: {integrity: sha512-Xmg2cPmOPQieCLAdf62KtFPU9y7wbQDq1OAzrs/bEQFvhtCPXDiks1CHDE/sTXReRfh/MICVkw/vY6OANHUGiA==}
 
   '@esbuild/aix-ppc64@0.23.1':
     resolution: {integrity: sha512-6VhYk1diRqrhBAqpJEdjASR/+WVRtfjpqKuNw11cLiaWpAT/Uu+nokB+UJnevzy/P9C/ty6AOe0dwueMrGh/iQ==}
@@ -395,6 +404,9 @@ packages:
 
   csv-writer@1.6.0:
     resolution: {integrity: sha512-NOx7YDFWEsM/fTRAJjRpPp8t+MKRVvniAg9wQlUKx20MFrPs73WLJhFf5iteqrxNYnsy924K3Iroh3yNHeYd2g==}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   debug@4.3.7:
     resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
@@ -781,6 +793,8 @@ packages:
 
 snapshots:
 
+  '@date-fns/tz@1.1.2': {}
+
   '@esbuild/aix-ppc64@0.23.1':
     optional: true
 
@@ -1073,6 +1087,8 @@ snapshots:
       which: 2.0.2
 
   csv-writer@1.6.0: {}
+
+  date-fns@4.1.0: {}
 
   debug@4.3.7:
     dependencies:
