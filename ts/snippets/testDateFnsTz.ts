@@ -1,8 +1,9 @@
 import DateFns from 'date-fns';
 import { tz } from '@date-fns/tz';
 
+const tzJST = tz('Asia/Tokyo');
 const formatDateInJST = (format: string, date: Date) => {
-  return DateFns.format(date, format, { in: tz('Asia/Tokyo') });
+  return DateFns.format(date, format, { in: tzJST });
 };
 
 const main = () => {
