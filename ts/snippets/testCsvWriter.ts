@@ -4,8 +4,9 @@ const main = () => {
   const csvStringifier = createObjectCsvStringifier({
     header: [
       { id: 'a', title: 'AAA' },
-      { id: 'unknownKey', title: 'Unknown Key' },
+      { id: 'blank', title: 'blank 1' },
       { id: 'b', title: 'BBB' },
+      { id: 'blank', title: 'blank 2' },
     ],
   });
   console.log(
