@@ -18,6 +18,7 @@
     "@types/benchmark": "^2.1.5",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "~22.7.0",
+    "@types/yargs": "^17.0.33",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "npm-run-all2": "^6.2.2",
@@ -30,6 +31,8 @@
     "@date-fns/tz": "^1.1.2",
     "benchmark": "^2.1.4",
     "csv-writer": "^1.6.0",
-    "date-fns": "^4.1.0"
+    "date-fns": "^4.1.0",
+    "iconv-lite": "^0.6.3",
+    "yargs": "^17.7.2"
   }
 }
