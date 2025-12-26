@@ -25,30 +25,30 @@ export class MicrothreadManager {
     }
   }
 
+  private tickTask(task: GeneratorType) {
+    try {
+      const { done } = task.next();
+      if (!done) {
+        this.nextTasks.push(task);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   yield(): boolean {
     return this.withContext(() => {
       const tasks = this.nextTasks;
       this.nextTasks = [];
       tasks.forEach((task) => {
-        try {
-          const { done } = task.next();
-          if (!done) {
-            this.nextTasks.push(task);
-          }
-        } catch (e) {
-          console.error(e);
-        }
+        this.tickTask(task);
       });
       return this.nextTasks.length > 0;
     }, 'running yield() in microthreads or another microthreads are running');
   }
 
   private callTaskFn<Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType, ...args: Args): void {
-    const gen = taskFn(...args);
-    const { done } = gen.next();
-    if (!done) {
-      this.nextTasks.push(gen);
-    }
+    this.tickTask(taskFn(...args));
   }
 
   static wrapTask<Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType): Task<Args> {
