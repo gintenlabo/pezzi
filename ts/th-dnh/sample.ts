@@ -21,6 +21,6 @@ const main = wrapTask(function* () {
 });
 
 const manager = new MicrothreadManager();
-manager.start(main);
+manager.startTask(main);
 
 while (manager.yield());

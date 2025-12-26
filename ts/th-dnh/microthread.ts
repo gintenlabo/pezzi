@@ -1,5 +1,10 @@
 type GeneratorType = Generator<void, void, void>;
 
+interface Task<Args extends unknown[]> {
+  (...args: Args): void;
+  taskFn: (...args: Args) => GeneratorType;
+}
+
 export class MicrothreadManager {
   private nextTasks: Array<GeneratorType>;
   private static runningManager: MicrothreadManager | null = null;
@@ -38,7 +43,7 @@ export class MicrothreadManager {
     }, 'running yield() in microthreads or another microthreads are running');
   }
 
-  private startTask<Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType, ...args: Args): void {
+  private callTaskFn<Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType, ...args: Args): void {
     const gen = taskFn(...args);
     const { done } = gen.next();
     if (!done) {
@@ -46,20 +51,26 @@ export class MicrothreadManager {
     }
   }
 
-  static wrapTask<Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType): (...args: Args) => void {
-    return (...args) => {
+  static wrapTask<Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType): Task<Args> {
+    const result = (...args: Args) => {
       const manager = MicrothreadManager.runningManager;
       if (!manager) {
-        throw new Error('task is called outside of microthreads; if you want to run task, use start()');
+        throw new Error('task is called outside of microthreads; if you want to run, use callTask()');
       }
-      manager.startTask(taskFn, ...args);
+      manager.callTaskFn(taskFn, ...args);
     };
+    result.taskFn = taskFn;
+    return result;
   }
 
-  start<Args extends unknown[]>(task: (...args: Args) => void, ...args: Args): void {
-    this.withContext(() => {
-      task(...args);
-    }, 'calling start in microthreads');
+  startTask<Args extends unknown[]>(task: Task<Args>, ...args: Args): void {
+    const { taskFn } = task;
+    this.nextTasks.push(taskFn(...args));
+  }
+
+  callTask<Args extends unknown[]>(task: Task<Args>, ...args: Args): void {
+    const { taskFn } = task;
+    this.callTaskFn(taskFn, ...args);
   }
 
   countTasks(): number {
