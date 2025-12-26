@@ -1,4 +1,4 @@
-import { yield_all, wrapTask } from './microthread';
+import { MicrothreadManager, wrapTask } from './microthread';
 
 const X = wrapTask(function* (a: string) {
   console.log(`(1): X(${JSON.stringify(a)})`);
@@ -20,6 +20,7 @@ const main = wrapTask(function* () {
   yield;
 });
 
-main();
+const manager = new MicrothreadManager();
+manager.start(main);
 
-while (yield_all());
+while (manager.yield());
