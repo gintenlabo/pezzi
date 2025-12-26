@@ -72,10 +72,6 @@ export class MicrothreadManager {
     const { taskFn } = task;
     this.callTaskFn(taskFn, ...args);
   }
-
-  countTasks(): number {
-    return this.nextTasks.length;
-  }
 }
 
 export const wrapTask = <Args extends unknown[]>(taskFn: (...args: Args) => GeneratorType) =>
