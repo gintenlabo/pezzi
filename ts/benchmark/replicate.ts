@@ -1,4 +1,4 @@
-import * as Benchmark from 'benchmark';
+import Benchmark from 'benchmark';
 
 const replicateByFrom = <const T>(n: number, x: T): T[] => Array.from({ length: n }, () => x);
 
@@ -31,7 +31,9 @@ suite
     benchReplicate(replicateByGenerator);
   })
   .on('cycle', (event: Benchmark.Event) => {
-    console.log(String(event.target));
+    if (event.target instanceof Benchmark) {
+      console.log(String(event.target));
+    }
   })
   .on('complete', function (this: Benchmark.Suite) {
     const fastestNames = this.filter('fastest').map('name') as string[];
