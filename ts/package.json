@@ -38,7 +38,7 @@
     "csv-writer": "^1.6.0",
     "date-fns": "^4.4.0",
     "iconv-lite": "^0.6.3",
-    "pdfjs-dist": "^5.4.394",
+    "pdfjs-dist": "^6.4.299",
     "yargs": "^17.7.3"
   }
 }
