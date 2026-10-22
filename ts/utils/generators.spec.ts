@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { range, inclusiveRange, replicate } from './generators';
 
 const GeneratorFunction = function* () {}.constructor;
